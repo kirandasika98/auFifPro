@@ -8,8 +8,18 @@ from peewee import IntegrityError
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 def index_route():
+	if request.method == 'POST':
+		if valid_login(request.form['username'], request.form['password']):
+			return jsonify({"response": True})
+		else:
+			response = {
+				'response': False,
+				'error':  "invalid username/password"
+			}
+			return jsonify(response)
+	
 	return render_template('index.html')
 
 @app.route("/signup", methods=['GET', 'POST'])
@@ -32,25 +42,10 @@ def sign_up():
 @app.route("/dashboard")
 def dashboard():
 	return render_template("dashboard.html")
-
-def login():
-	if request_method == 'POST'
-		if valid_login(reqest.form['username'], request.form['password']):
-			return jsonify({"response": True})
-		else:
-			response = {
-				'response': False,
-				'error':  "invalid username/password"
-			}
-			return jsonify(response)
+	
 def valid_login(attempted_username, attempted_password):
 	try:
 		user = User.get(User.username == attempted_username)
 	except UserDoesNotExist:
-		response = {
-			'response': False,
-			'error': "invalid username/password"
-		}
-		return jsonify(response)
-	if user.password == attempted_password:
-		return jsonify({'response': True})
+		return False
+	return bcrypt.check_password_hash(user.password, attempted_password)
