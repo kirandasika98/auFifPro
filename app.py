@@ -21,8 +21,29 @@ def sign_up():
 		attempted_username = request.form['username']
 		attempted_password = request.form['password']
 		pass_hash = brypt.generate_password_hash(attempted_password)
-		User.create(username = attempted_username)
-		User.create(password = pass_hash)
-		return jsonify({"response": True})
+		new_user = User.create(username = attempted_username, password = pass_hash)
+
+		return jsonify({"response": new_user})
 	else:
 		return render_template('signup.html')
+def login():
+	if request_method == 'POST'
+		if valid_login(reqest.form['username'], request.form['password']):
+			return jsonify({"response": True})
+		else:
+			response = {
+				'response': False,
+				'error':  "invalid username/password"
+			}
+			return jsonify(response)
+def valid_login(attempted_username, attempted_password):
+	try:
+		user = User.get(User.username == attempted_username)
+	except UserDoesNotExist:
+		response = {
+			'response': False,
+			'error': "invalid username/password"
+		}
+		return jsonify(response)
+	if user.password == attempted_password:
+		return jsonify({'response': True})
