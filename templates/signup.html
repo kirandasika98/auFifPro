@@ -5,22 +5,21 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='template.css') }}">
 {% endblock %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Signup{% endblock %}
 
 {% block content %}
 <main role="main" class="container">
       <div class="row">
-        <div class="col-md-offset-5 col-md-10">
+        <div class="col-md-offset-5 col-md-6">
             <div class="form-login">
-            <h4>Login</h4>
+            <h4>Signup</h4>
             <input type="text" id="userName" class="form-control input-sm chat-input" placeholder="tiger id" />
             </br>
-            <input type="text" id="userPassword" class="form-control input-sm chat-input" placeholder="password" />
+            <input type="password" id="userPassword" class="form-control input-sm chat-input" placeholder="password" />
             </br>
             <div class="wrapper">
             <span class="group-btn">     
-                <button id="userLogin" class="btn btn-primary btn-md">Login <i class="fa fa-sign-in"></i></button>
-                <p> or <br /> <a href="/signup">Signup for a free account</a></p>
+                <button id="userLogin" class="btn btn-primary btn-md" onclick="loginUser();">Signup <i class="fa fa-sign-in"></i></button>
             </span>
             </div>
             </div>
