@@ -13,3 +13,8 @@ class User(BaseModel):
 	matches_played = IntegerField(default=0)
 	is_moderater = BooleanField(default=False)
 	join_date = DateTimeField(default=datetime.datetime.now)
+
+
+def init_db():
+	db.connect()
+	db.create_tables([User], safe=True)
