@@ -4,6 +4,20 @@ from peewee import *
 
 db_proxy = Proxy()
 
+if "HEROKU" in os.environ:
+	import urlparse
+	import psycopg2
+	urlparse.uses_netloc.append("postgres")
+	url = urlparse.urlparse(os.environ["DATABASE_URL"])
+	db = PostgresqlDatabase(database=url.path[1:], user=url.username,
+							password=url.password, host=url.hostname,
+							port=url.port)
+	db_proxy.initialize(db)
+else:
+	db = SqliteDatabase('fifpro.db')
+	# Initializing database with proxy
+	db_proxy.initialize(db)
+
 class BaseModel(Model):
 
 	class Meta:
@@ -28,20 +42,6 @@ class Match(BaseModel):
 def init_db():
 	db.create_tables([User, Match], safe=True)
 
-
-
-if "HEROKU" in os.environ:
-	import urlparse
-	import psycopg2
-	urlparse.uses_netloc.append("postgres")
-	url = urlparse.urlparse(os.environ["DATABASE_URL"])
-	db = PostgresqlDatabase(database=url.path[1:], user=url.username,
-							password=url.password, host=url.hostname,
-							port=url.port)
-	db_proxy.initialize(db)
-else:
-	db = SqliteDatabase('fifpro.db')
-	db_proxy.initialize(db)
 
 # This is only run to create tables in the heroku postgres
 if __name__ == "__main__":

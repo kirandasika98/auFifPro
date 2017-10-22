@@ -9,13 +9,18 @@ from ranking import calculate_ranks
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
-
 @app.before_request
 def before_request():
 	g.db = db
+	g.db.connect()
 
 @app.teardown_request
 def teardown_request(response):
+	g.db.close()
+	return response
+
+@app.after_request
+def after_request(response):
 	g.db.close()
 	return response
 
