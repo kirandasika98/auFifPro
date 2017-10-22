@@ -44,8 +44,8 @@
           </li> -->
         </ul>
         <form class="form-inline my-2 my-lg-0">
-          {% if user %}
-            {{ user.name }}
+          {% if name %}
+            <font color="white">Welcome, {{ name }}</font>
           {% else %}
             <font color="white">No user logged in.</font>
           {% endif %}

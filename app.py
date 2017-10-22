@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask import render_template
-from flask import g
+from flask import make_response, redirect
 from flask_bcrypt import Bcrypt
 from models import User, init_db, db
 from peewee import IntegrityError
@@ -12,14 +12,20 @@ bcrypt = Bcrypt(app)
 def index_route():
 	if request.method == 'POST':
 		if valid_login(request.form['username'], request.form['password']):
-			return jsonify({"response": True})
+			#set cookie
+			response = make_response(jsonify({"response": True}))
+			response.set_cookie("username", request.form['username'])
+			return response
 		else:
 			response = {
 				'response': False,
 				'error':  "invalid username/password"
 			}
 			return jsonify(response)
-	
+
+	if "username" in request.cookies:
+		return redirect("/dashboard")
+
 	return render_template('index.html')
 
 
@@ -44,6 +50,7 @@ def sign_up():
 			User.create(username = attempted_username, password=pass_hash)
 		except IntegrityError:
 			return jsonify({"response": False, "error": "username already taken"})
+		# set cookie and return
 		return jsonify({"response": True})
 	else:
 		return render_template('signup.html')
@@ -51,7 +58,9 @@ def sign_up():
 
 @app.route("/dashboard")
 def dashboard():
-	return render_template("dashboard.html")
+	if "username" not in request.cookies:
+		return redirect("/")
+	return render_template("dashboard.html", name=request.cookies['username'])
 
 
 
