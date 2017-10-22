@@ -68,6 +68,3 @@ def calculate_ranks():
 
 	return OrderedDict(sorted(user_map.items(), key=lambda t: t[1].points, reverse=True))
 
-def print_map():
-	for key, val in user_map.items():
-		print key, val

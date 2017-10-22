@@ -97,11 +97,6 @@ def dashboard():
 							rankings=rankings)
 
 
-
-if __name__ == "__main__":
-	app.run(debug=True)
-
-
 @app.route("/new_match", methods=['GET', 'POST'])
 def new_match():
 	if request.method == 'POST':
@@ -114,3 +109,7 @@ def new_match():
 					player1_goals = player1_goals, player2_goals = player2_goals)
 
 		return jsonify({"response": True})
+
+
+if __name__ == "__main__":
+	app.run(debug=True)
