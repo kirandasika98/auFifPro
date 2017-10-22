@@ -1,5 +1,6 @@
 import datetime
 from peewee import *
+
 db = SqliteDatabase('fifpro.db')
 
 class BaseModel(Model):
@@ -24,5 +25,4 @@ class Match(BaseModel):
 
 
 def init_db():
-	db.connect()
-	db.create_tables([User], safe=True)
+	db.create_tables([User, Match], safe=True)

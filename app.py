@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, g
 from flask import render_template
 from flask import make_response, redirect
 from flask_bcrypt import Bcrypt
@@ -9,12 +9,25 @@ from ranking import calculate_ranks
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
+
+@app.before_request
+def before_request():
+	g.db = db
+	init_db()
+
+@app.teardown_request
+def teardown_request(response):
+	g.db.close()
+	return response
+
+
 @app.route("/", methods=['GET', 'POST'])
 def index_route():
 	if request.method == 'POST':
 		if valid_login(request.form['username'], request.form['password']):
 			#set cookie
 			response = make_response(jsonify({"response": True}))
+			# setting a cookie hash
 			response.set_cookie("username", request.form['username'])
 			return response
 		else:
@@ -57,12 +70,13 @@ def sign_up():
 		attempted_password = request.form['password']
 		pass_hash = bcrypt.generate_password_hash(attempted_password)
 		try:
-			User.create(username = attempted_username, password=pass_hash)
+			user = User.create(username = attempted_username, password=pass_hash)
 		except IntegrityError:
 			return jsonify({"response": False, "error": "username already taken"})
 
 		# set cookie and return
 		response = make_response(jsonify({"response": True}))
+		response.set_cookie("user_id", user.get_id())
 		response.set_cookie("username", attempted_username)
 		return response
 	else:
