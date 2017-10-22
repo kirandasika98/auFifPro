@@ -13,7 +13,6 @@ bcrypt = Bcrypt(app)
 @app.before_request
 def before_request():
 	g.db = db
-	init_db()
 
 @app.teardown_request
 def teardown_request(response):
@@ -96,6 +95,11 @@ def dashboard():
 							is_moderater=user.is_moderater,
 							usernames=usernames,
 							rankings=rankings)
+
+
+
+if __name__ == "__main__":
+	app.run(debug=True)
 
 
 @app.route("/new_match", methods=['GET', 'POST'])
