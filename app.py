@@ -22,6 +22,15 @@ def index_route():
 	
 	return render_template('index.html')
 
+
+def valid_login(attempted_username, attempted_password):
+	try:
+		user = User.get(User.username == attempted_username)
+	except UserDoesNotExist:
+		return False
+	return bcrypt.check_password_hash(user.password, attempted_password)
+
+
 @app.route("/signup", methods=['GET', 'POST'])
 def sign_up():
 	if request.method == 'POST':
@@ -39,13 +48,12 @@ def sign_up():
 	else:
 		return render_template('signup.html')
 
+
 @app.route("/dashboard")
 def dashboard():
 	return render_template("dashboard.html")
+
+
+
+
 	
-def valid_login(attempted_username, attempted_password):
-	try:
-		user = User.get(User.username == attempted_username)
-	except UserDoesNotExist:
-		return False
-	return bcrypt.check_password_hash(user.password, attempted_password)

@@ -15,6 +15,14 @@ class User(BaseModel):
 	join_date = DateTimeField(default=datetime.datetime.now)
 
 
+class Match(BaseModel):
+	player1 = ForeignKeyField(User, related_name='player1')
+	player2 = ForeignKeyField(User, related_name='player2')
+	player1_goals = IntegerField(default=0)
+	player2_goals = IntegerField(default=0)
+	pub_date = DateTimeField(default=datetime.datetime.now)
+
+
 def init_db():
 	db.connect()
 	db.create_tables([User], safe=True)
