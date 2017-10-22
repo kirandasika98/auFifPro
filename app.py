@@ -61,8 +61,20 @@ def dashboard():
 	if "username" not in request.cookies:
 		return redirect("/")
 	return render_template("dashboard.html", name=request.cookies['username'])
+@app.route("/new_match", methods=['GET', 'POST'])
+def new_match():
+	if request.method == 'POST':
+		player1_id = request.form['player1_id']
+		player2_id = request.form['player2_id']
+		player1_goals = request.form['player1_goals']
+		player2_goals = request.form['player2_goals']
 
-
-
-
-	
+		Match.create(player1_id = player1_id, player2_id = player2_id, 
+			player1_goals = player1_goals, player2_goals = player2_goals)
+		return jsonify({"response": True})
+	else:
+		response = {
+			'response': False,
+			'error': "failed to create new match"
+		}
+		return jsonify(response)
