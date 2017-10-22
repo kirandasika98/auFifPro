@@ -8,8 +8,8 @@
 
 {% block content %}
 <div class="container">
-	{% if is_moderator %}
-		<a href='#' id="newMatch" data-toggle="modal" data-target="#exampleModal">New Match</a>
+	{% if is_moderater %}
+		<a href='#' id="newMatch" data-toggle="modal" data-target="#myModal">New Match</a>
 
 		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		  <div class="modal-dialog" role="document">
@@ -21,16 +21,64 @@
 		        </button>
 		      </div>
 		      <div class="modal-body">
-		        ...
+		        <form id="new_match">
+		        	<label>Player1:</label>
+		        	<select id="player_1_dropdown">
+		        		{% for user_id, username in usernames.items() %}
+		        			<option value="{{ user_id }}">{{ username }}</option>
+		        		{% endfor %}
+		        	</select>
+		        	<label for="player_1_goals">Goals: </label>
+		        	<input type="text" class="col-sm-2" id="player_1_goals" >
+		        	<br />
+
+		        	<label>Player2:</label>
+		        	<select id="player_2_dropdown">
+		        		{% for user_id, username in usernames.items() %}
+		        			<option value="{{ user_id }}">{{ username }}</option>
+		        		{% endfor %}
+		        	</select>
+		        	<label>Goals: </label>
+		        	<input type="text" class="col-sm-2" id="player_2_goals" >
+		        </form>
 		      </div>
 		      <div class="modal-footer">
 		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-		        <button type="button" class="btn btn-primary">Save changes</button>
+		        <button type="button" class="btn btn-primary" onclick="newMatch();">Create Match</button>
 		      </div>
 		    </div>
 		  </div>
 		</div>
-
 	{% endif %}
+	<br /><br />
+	<h2>Ranking</h2>
+
+	<!-- display ranks table here -->
+	<table class="table">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>username</th>
+				<th>W</th>
+				<th>D</th>
+				<th>GD</th>
+				<th>Points</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% if rankings %}
+				{% for id, user in rankings.items() %}
+			<tr>
+				<th scope="row">{{ loop.index }}</th>
+				<td>{{ user.username }}</td>
+				<td>{{ user.wins }}</td>
+				<td>{{ user.draws }}</td>
+				<td>{{ user.GD }}</td>
+				<td>{{ user.points }}</td>
+			</tr>
+				{% endfor %}
+			{% endif %}
+		</tbody>
+	</table>
 </div>
 {% endblock %}

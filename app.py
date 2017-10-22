@@ -2,8 +2,9 @@ from flask import Flask, request, jsonify
 from flask import render_template
 from flask import make_response, redirect
 from flask_bcrypt import Bcrypt
-from models import User, init_db, db
-from peewee import IntegrityError
+from models import User, Match, init_db, db
+from peewee import IntegrityError, DoesNotExist
+from ranking import calculate_ranks
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -32,9 +33,18 @@ def index_route():
 def valid_login(attempted_username, attempted_password):
 	try:
 		user = User.get(User.username == attempted_username)
-	except UserDoesNotExist:
+	except DoesNotExist:
 		return False
 	return bcrypt.check_password_hash(user.password, attempted_password)
+
+
+@app.route("/logout")
+def logout():
+	if "username" in request.cookies:
+		response = make_response(redirect("/"))
+		response.set_cookie("username", "", expires=0)
+		return response
+	return redirect("/dashboard")
 
 
 @app.route("/signup", methods=['GET', 'POST'])
@@ -50,8 +60,11 @@ def sign_up():
 			User.create(username = attempted_username, password=pass_hash)
 		except IntegrityError:
 			return jsonify({"response": False, "error": "username already taken"})
+
 		# set cookie and return
-		return jsonify({"response": True})
+		response = make_response(jsonify({"response": True}))
+		response.set_cookie("username", attempted_username)
+		return response
 	else:
 		return render_template('signup.html')
 
@@ -60,7 +73,15 @@ def sign_up():
 def dashboard():
 	if "username" not in request.cookies:
 		return redirect("/")
-	return render_template("dashboard.html", name=request.cookies['username'])
+	user = User.get(username = request.cookies['username'])
+	usernames = {}
+	for user1 in User.select():
+		usernames[user1.get_id()] = user1.username
+	rankings = calculate_ranks()
+	return render_template("dashboard.html", name=request.cookies['username'],
+							is_moderater=user.is_moderater,
+							usernames=usernames,
+							rankings=rankings)
 
 
 @app.route("/new_match", methods=['GET', 'POST'])
@@ -68,15 +89,10 @@ def new_match():
 	if request.method == 'POST':
 		player1_id = request.form['player1_id']
 		player2_id = request.form['player2_id']
-		player1_goals = request.form['player1_goals']
-		player2_goals = request.form['player2_goals']
+		player1_goals = int(request.form['player1_goals'])
+		player2_goals = int(request.form['player2_goals'])
 
 		Match.create(player1_id = player1_id, player2_id = player2_id, 
-			player1_goals = player1_goals, player2_goals = player2_goals)
+					player1_goals = player1_goals, player2_goals = player2_goals)
+
 		return jsonify({"response": True})
-	else:
-		response = {
-			'response': False,
-			'error': "failed to create new match"
-		}
-		return jsonify(response)

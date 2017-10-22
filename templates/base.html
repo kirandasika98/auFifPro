@@ -18,7 +18,7 @@
   {% endblock %}
   <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-      <a class="navbar-brand" href="#">Au Fif Pro</a>
+      <a class="navbar-brand" href="#">AuFifPro</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -28,6 +28,11 @@
           <li class="nav-item active">
             <a class="nav-link" href="#">Home</a>
           </li>
+          {% if name %}
+          <li class="nav-item">
+            <a class="nav-link" href="/logout">Logout</a>
+          </li>
+          {% endif %}
           <!-- <li class="nav-item">
             <a class="nav-link" href="#">Link</a>
           </li>
