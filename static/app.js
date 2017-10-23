@@ -1,9 +1,11 @@
 function signupUser() {
 	var username = $('#userName').val();
 	var password = $('#userPassword').val();
+	var verifyPassword = $("#verifyUserPassword").val();
 	var payloadData = {
 		'username': username,
-		'password': password
+		'password': password,
+		'verify_password': verifyPassword
 	};
 	//Send post request to /signup
 	$.post($SCRIPT_ROOT + "/signup", payloadData, function(data, status){
