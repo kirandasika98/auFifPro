@@ -74,13 +74,12 @@ def sign_up():
 		attempted_password = request.form['password']
 		pass_hash = bcrypt.generate_password_hash(attempted_password)
 		try:
-			user = User.create(username = attempted_username, password=pass_hash)
+			User.create(username=attempted_username, password=pass_hash)
 		except IntegrityError:
 			return jsonify({"response": False, "error": "username already taken"})
 
 		# set cookie and return
 		response = make_response(jsonify({"response": True}))
-		response.set_cookie("user_id", user.get_id())
 		response.set_cookie("username", attempted_username)
 		return response
 	else:
