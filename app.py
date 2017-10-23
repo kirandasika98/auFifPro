@@ -72,7 +72,7 @@ def sign_up():
 		#returning true or returning to signup page
 		attempted_username = request.form['username']
 		attempted_password = request.form['password']
-		if attempted_username is None or attempted_password is None:
+		if len(attempted_username) > 1 or len(attempted_password) < 1:
 			return jsonify({"response": False, "error": "please provide a username/password"})
 
 		pass_hash = bcrypt.generate_password_hash(attempted_password)
