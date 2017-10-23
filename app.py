@@ -71,11 +71,16 @@ def logout():
 @app.route("/signup", methods=['GET', 'POST'])
 def sign_up():
 	if request.method == 'POST':
-		#Getting username and password
-		#hashing password and creating a database entry and
-		#returning true or returning to signup page
+		"""
+		Getting username and password
+		hashing password and creating a database entry and
+		returning true or returning to signup page
+		"""
 		attempted_username = request.form['username']
 		attempted_password = request.form['password']
+		attempted_verified = request.form['verify_password']
+		if attempted_password != attempted_verified:
+			return jsonify({response}: False, "error": "Your password did not match")
 		if len(attempted_username) < 1 or len(attempted_password) < 1:
 			return jsonify({"response": False, "error": "please provide a username/password"})
 
@@ -92,7 +97,6 @@ def sign_up():
 	else:
 		return render_template('signup.html')
 
-
 @app.route("/dashboard")
 def dashboard():
 	if "username" not in request.cookies:
@@ -107,7 +111,6 @@ def dashboard():
 							usernames=usernames,
 							rankings=rankings)
 
-
 @app.route("/new_match", methods=['GET', 'POST'])
 def new_match():
 	if request.method == 'POST':
@@ -115,12 +118,12 @@ def new_match():
 		player2_id = request.form['player2_id']
 		player1_goals = int(request.form['player1_goals'])
 		player2_goals = int(request.form['player2_goals'])
-
-		Match.create(player1_id = player1_id, player2_id = player2_id, 
+		if (player1_id == player2_id):
+			return jsonify({"response": False, "error": "Player 1 cannot be the same as Player2"})
+		Match.create(player1_id = player1_id, player2_id = player2_id,
 					player1_goals = player1_goals, player2_goals = player2_goals)
 
 		return jsonify({"response": True})
-
 
 if __name__ == "__main__":
 	app.run(debug=True)
