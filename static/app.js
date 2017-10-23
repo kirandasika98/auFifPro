@@ -50,7 +50,7 @@ function newMatch() {
 	$.post($SCRIPT_ROOT + "/new_match", payloadData, function(data, status){
 		if (data.response == true) {
 			$('#myModal').modal('hide');
-			window.location.replace($SCRIPT_ROOT + "/dashboard");
+			document.getElementById("refresh_helper").innerHTML = "<a href='/dashboard'>Refresh</a>";
 		}
 		else {
 			console.log('bosri');
