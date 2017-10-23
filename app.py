@@ -74,6 +74,7 @@ def sign_up():
 		attempted_password = request.form['password']
 		if attempted_username is None or attempted_password is None:
 			return jsonify({"response": False, "error": "please provide a username/password"})
+
 		pass_hash = bcrypt.generate_password_hash(attempted_password)
 		try:
 			User.create(username=attempted_username, password=pass_hash)
