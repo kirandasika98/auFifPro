@@ -26,33 +26,21 @@
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="#">Home</a>
+            {% if name %}
+              <a class="nav-link" href="/dashboard">Home</a>
+              {% else %}
+                <a class="nav-link" href="/">Home</a>
+            {% endif %}
           </li>
           {% if name %}
           <li class="nav-item">
             <a class="nav-link" href="/logout">Logout</a>
           </li>
           {% endif %}
-          <!-- <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link disabled" href="#">Disabled</a>
-          </li> 
-           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-            <div class="dropdown-menu" aria-labelledby="dropdown01">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <a class="dropdown-item" href="#">Something else here</a>
-            </div>
-          </li> -->
         </ul>
         <form class="form-inline my-2 my-lg-0">
           {% if name %}
             <font color="white">Welcome, {{ name }}</font>
-          {% else %}
-            <font color="white">No user logged in.</font>
           {% endif %}
         </form>
       </div>
