@@ -5,9 +5,13 @@ from flask_bcrypt import Bcrypt
 from models import User, Match, init_db, db
 from peewee import IntegrityError, DoesNotExist
 from ranking import calculate_ranks
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+
+# Cookie expiry
+sixty_days = datetime.now() + timedelta(days=60)
 
 @app.before_request
 def before_request():
@@ -32,7 +36,7 @@ def index_route():
 			#set cookie
 			response = make_response(jsonify({"response": True}))
 			# setting a cookie hash
-			response.set_cookie("username", request.form['username'])
+			response.set_cookie("username", request.form['username'], expires=sixty_days)
 			return response
 		else:
 			response = {
@@ -83,7 +87,7 @@ def sign_up():
 
 		# set cookie and return
 		response = make_response(jsonify({"response": True}))
-		response.set_cookie("username", attempted_username)
+		response.set_cookie("username", attempted_username, expires=sixty_days)
 		return response
 	else:
 		return render_template('signup.html')
