@@ -36,7 +36,8 @@ def index_route():
 			#set cookie
 			response = make_response(jsonify({"response": True}))
 			# setting a cookie hash
-			response.set_cookie("username", request.form['username'], expires=sixty_days)
+			response.set_cookie("username", request.form['username'],
+								expires=sixty_days)
 			return response
 		else:
 			response = {
@@ -79,12 +80,15 @@ def sign_up():
 		attempted_username = request.form['username']
 		attempted_password = request.form['password']
 		attempted_verified = request.form['verify_password']
+
 		if attempted_password != attempted_verified:
-			return jsonify({response}: False, "error": "Your password did not match")
+			return jsonify({"response": False, "error": "Your password did not match"})
+
 		if len(attempted_username) < 1 or len(attempted_password) < 1:
 			return jsonify({"response": False, "error": "please provide a username/password"})
 
 		pass_hash = bcrypt.generate_password_hash(attempted_password)
+
 		try:
 			User.create(username=attempted_username, password=pass_hash)
 		except IntegrityError:
@@ -116,10 +120,17 @@ def new_match():
 	if request.method == 'POST':
 		player1_id = request.form['player1_id']
 		player2_id = request.form['player2_id']
-		player1_goals = int(request.form['player1_goals'])
-		player2_goals = int(request.form['player2_goals'])
+
+		# Checking to see if goals were provided
+		try:
+			player1_goals = int(request.form['player1_goals'])
+			player2_goals = int(request.form['player2_goals'])
+		except:
+			return jsonify({"response": False, "error": "Provide goals for players."})
+
 		if (player1_id == player2_id):
 			return jsonify({"response": False, "error": "Player 1 cannot be the same as Player2"})
+		
 		Match.create(player1_id = player1_id, player2_id = player2_id,
 					player1_goals = player1_goals, player2_goals = player2_goals)
 

@@ -41,7 +41,7 @@ function newMatch() {
 	var player2_id = $("#player_2_dropdown").val();
 	var player1_goals = $("#player_1_goals").val();
 	var player_2_goals = $("#player_2_goals").val();
-
+	
 	var payloadData = {
 		'player1_id': player1_id,
 		'player2_id': player2_id,
@@ -55,7 +55,7 @@ function newMatch() {
 			document.getElementById("refresh_helper").innerHTML = "<a href='/dashboard'>Refresh</a>";
 		}
 		else {
-			console.log('bosri');
+			document.getElementById("new_match_error").innerHTML = "<font color='red'>" + data.error + "</font>";
 		}
 	});
 }
