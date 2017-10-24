@@ -130,11 +130,19 @@ def new_match():
 
 		if (player1_id == player2_id):
 			return jsonify({"response": False, "error": "Player 1 cannot be the same as Player2"})
-		
+
 		Match.create(player1_id = player1_id, player2_id = player2_id,
 					player1_goals = player1_goals, player2_goals = player2_goals)
 
 		return jsonify({"response": True})
+
+@app.route("/forgot_password", methods=['GET', 'POST'])
+def forgot_password():
+	if request.method == 'POST':
+		password_info = "email sent successfully"
+		return render_template("forgot_password.html", password_info=password_info)
+
+	return render_template('forgot_password.html')
 
 if __name__ == "__main__":
 	app.run(debug=True)
