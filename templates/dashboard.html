@@ -73,7 +73,9 @@
 				{% for id, user in rankings.items() %}
 			<tr>
 				<th scope="row">{{ loop.index }}</th>
-				<td>{{ user.username }}</td>
+				<td>
+					<a href="/profile/{{ user.id }}">{{ user.username }}</a>
+				</td>
 				<td>{{ user.matches_played }}</td>
 				<td>{{ user.wins }}</td>
 				<td>{{ user.draws }}</td>

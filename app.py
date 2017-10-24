@@ -6,6 +6,7 @@ from models import User, Match, init_db, db
 from peewee import IntegrityError, DoesNotExist
 from ranking import calculate_ranks
 from datetime import datetime, timedelta
+from profile_matches import get_my_matches
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -144,5 +145,12 @@ def forgot_password():
 
 	return render_template('forgot_password.html')
 
+
+@app.route("/profile/<id>", methods=['GET'])
+def profile(id=None):
+	if "username" in request.cookies:
+		user = User.get(User.id == id)
+		return render_template("profile.html", user=user)
+	return redirect("/")
 if __name__ == "__main__":
 	app.run(debug=True)

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+  <link rel="stylesheet" src="{{ url_for('static', filename='template.css') }}" />
+{% endblock %}
+
+{% block title %} Profile - {{ user.username }} {% endblock %}
+
+{% block content %}
+<div class"container row">
+<center>
+    <h2> {{ user.username }} </h2>
+    <hr />
+    <p class="lead">Matches Played</p>
+    
+</center>
+</div>
+{% endblock %}
