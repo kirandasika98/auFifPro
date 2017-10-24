@@ -60,7 +60,8 @@
 		<thead>
 			<tr>
 				<th>#</th>
-				<th>username</th>
+				<th>Username</th>
+				<th>MP</th>
 				<th>W</th>
 				<th>D</th>
 				<th>GD</th>
@@ -73,6 +74,7 @@
 			<tr>
 				<th scope="row">{{ loop.index }}</th>
 				<td>{{ user.username }}</td>
+				<td>{{ user.matches_played }}</td>
 				<td>{{ user.wins }}</td>
 				<td>{{ user.draws }}</td>
 				<td>{{ user.GD }}</td>
