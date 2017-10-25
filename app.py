@@ -1,3 +1,4 @@
+import bmemcached
 from flask import Flask, request, jsonify, g
 from flask import render_template
 from flask import make_response, redirect
@@ -7,9 +8,15 @@ from peewee import IntegrityError, DoesNotExist
 from ranking import calculate_ranks
 from datetime import datetime, timedelta
 from profile_matches import get_my_matches
+from utils import MyMemcache
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+
+# Memcache Setup
+memcache = MyMemcache(bmemcached.Client('memcached-18817.c14.us-east-1-2.ec2.'\
+					'cloud.redislabs.com:18817', 'aufifpro', '12345'))
+
 
 # Cookie expiry
 sixty_days = datetime.now() + timedelta(days=60)

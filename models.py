@@ -38,12 +38,28 @@ class Match(BaseModel):
 	player2_goals = IntegerField(default=0)
 	pub_date = DateTimeField(default=datetime.datetime.now)
 
+class YelpAccessToken(BaseModel):
+	user = ForeignKeyField(User, related_name='user')
+	access_token = CharField()
+	access_token_expiry = IntegerField()
+	pub_date = DateTimeField(default=datetime.datetime.now)
+
+class CachedYelpPlace(BaseModel):
+	"""
+	This Model will be tightly integrated with memcache to cut down extensive
+	api calls to yelp
+	"""
+	yelp_id = CharField()
+	yelp_data = CharField()
+	pub_date = DateTimeField(default=datetime.datetime.now)
+
 
 def init_db():
-	db.create_tables([User, Match], safe=True)
+	db.create_tables([User, Match, CachedYelpPlace, YelpAccessToken],
+					safe=True)
 
 
-# This is only run to create tables in the heroku postgres
+# This file is only run when we need to create our tables in Heroku Postgres.
 if __name__ == "__main__":
 	db_proxy.connect()
 	init_db()
