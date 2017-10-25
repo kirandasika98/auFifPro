@@ -12,8 +12,12 @@
 <center>
     <h2> {{ user.username }} </h2>
     <hr />
-    <p class="lead">Matches Played</p>
-    
+    {% if outcomes %}
+      <p class="lead"> Matches Played </p>
+      {% for outcome in outcomes %}
+        <p> {{ outcome }} </p>
+      {% endfor %}
+    {% endif %}
 </center>
 </div>
 {% endblock %}

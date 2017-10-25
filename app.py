@@ -150,7 +150,10 @@ def forgot_password():
 def profile(id=None):
 	if "username" in request.cookies:
 		user = User.get(User.id == id)
-		return render_template("profile.html", user=user)
+		outcomes = get_my_matches(user)
+		return render_template("profile.html", user=user, outcomes=outcomes)
 	return redirect("/")
+
+
 if __name__ == "__main__":
 	app.run(debug=True)
