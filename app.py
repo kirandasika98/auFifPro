@@ -1,4 +1,5 @@
 import bmemcached
+import time
 from flask import Flask, request, jsonify, g
 from flask import render_template
 from flask import make_response, redirect
@@ -14,12 +15,16 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 # Memcache Setup
-memcache = MyMemcache(bmemcached.Client('memcached-18817.c14.us-east-1-2.ec2.'\
-					'cloud.redislabs.com:18817', 'aufifpro', '12345'))
+mc = bmemcached.Client('memcached-18817.c14.us-east-1-2.ec2.'\
+					'cloud.redislabs.com:18817', 'aufifpro', '12345')
+memcache = MyMemcache(mc)
 
 
 # Cookie expiry
 sixty_days = datetime.now() + timedelta(days=60)
+
+# Memcache key expiry
+TWENTY_MIN = 600
 
 @app.before_request
 def before_request():
@@ -117,7 +122,31 @@ def dashboard():
 	usernames = {}
 	for user1 in User.select():
 		usernames[user1.get_id()] = user1.username
-	rankings = calculate_ranks()
+
+
+	# Check if ranks have to be updated and ranks are there in memcache
+	# Update ranks if needed and set update_ranks to False
+
+	# Defining a rankings variable to hold the OrderedDict of ranks
+	rankings = None
+	# Bool representing whether we have to update the ranks
+	update_ranks = mc.get("update_ranks")
+	# An Object to represent the ranks to be displayed
+	ranks = mc.get("ranks")
+
+	if update_ranks is not None and update_ranks is False:
+		# Return ranks as they are the most recent ones
+		print "Getting ranks from memcache..."
+		rankings = ranks
+
+	elif update_ranks is None or update_ranks is True:
+		print "Calculating new ranks"
+		# Calculating new ranks
+		rankings = calculate_ranks()
+		# Updating memcache with the recent ranks and update_ranks to False
+		mc.set("ranks", rankings)
+		mc.set("update_ranks", False)
+
 	return render_template("dashboard.html", name=request.cookies['username'],
 							is_moderater=user.is_moderater,
 							usernames=usernames,
@@ -141,6 +170,9 @@ def new_match():
 
 		Match.create(player1_id = player1_id, player2_id = player2_id,
 					player1_goals = player1_goals, player2_goals = player2_goals)
+
+		# ranks in memcache now are obselete so update the 'update_ranks' key
+		mc.set("update_ranks", True)
 
 		return jsonify({"response": True})
 
