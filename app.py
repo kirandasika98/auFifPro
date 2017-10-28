@@ -196,8 +196,20 @@ def new_match():
 @app.route("/forgot_password", methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
-        password_info = "email sent successfully"
-        return render_template("forgot_password.html", password_info=password_info)
+        username = request.form["userName"]
+        password = request.form["userPassword"]
+        verify_password = request.form["verifyPassword"]
+        try:
+            user = User.get(User.username == username)
+        except DoesNotExist:
+            return render_template("forgot_password.html", password_info="User does not exist")
+
+        if password == verify_password:
+            user.password = bcrypt.generate_password_hash(password)
+            user.save()
+            return redirect("/")
+        else:
+            return render_template("forgot_password.html", password_info="Password's dont match.")
 
     return render_template('forgot_password.html')
 

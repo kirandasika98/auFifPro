@@ -4,9 +4,11 @@ App utilities in this file
 import time
 import sys
 import json
+import requests
 
 
 TWO_DAYS = 172800
+API_BASE_URL = "https://api.mailgun.net/v3/{}/messages" # {} for mailgun domain
 
 class MyMemcache():
     def __init__(self, conn=None):
@@ -54,3 +56,26 @@ class MyMemcache():
         """
         return json.dumps(dict(expiry_timestamp=(int(time.time()) + TWO_DAYS),
                                 data=value, buff_size=sys.getsizeof(value)))
+
+
+class MailGunHandler(object):
+
+    def __init__(self, api_key, mailgun_domain):
+        self.api_key = api_key
+        self.mailgun_domain = mailgun_domain
+
+    def service_url(self):
+        return API_BASE_URL.format(self.mailgun_domain)
+
+    def send_email(self, to_email, subject, body):
+        r = requests.post(
+            self.service_url(),
+            auth=("api", self.api_key),
+            data={
+                "from": "AuFifPro <no-reply@{}>".format(self.mailgun_domain),
+                "to": [to_email, self.mailgun_domain],
+                "subject": subject,
+                "text": body
+            }
+        )
+        return r
