@@ -100,10 +100,11 @@ def logout():
 def sign_up():
     if request.method == 'POST':
         """
-		Getting username and password
-		hashing password and creating a database entry and
-		returning true or returning to signup page
-		"""
+        Getting username and password
+        hashing password and creating a database entry and
+        returning true or returning to signup page
+        """
+        
         attempted_username = request.form['username']
         attempted_password = request.form['password']
         attempted_verified = request.form['verify_password']
