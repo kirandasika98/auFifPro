@@ -72,13 +72,13 @@ class YelpFusionHandler():
             search_query = dict(term="Coffee", latitude=DEFAULT_LAT,
                                 longitude=DEFAULT_LONG)
 
-
         search_query["latitude"] = DEFAULT_LAT
         search_query["longitude"] = DEFAULT_LONG
         url = API_ENDPOINT_V3 + "autocomplete"
         autocomplete_data_request = requests.get(url, params=search_query,
                                                 headers=self.headers)
         return autocomplete_data_request.json()["businesses"]
+
 
 if __name__ == "__main__":
     yfh = YelpFusionHandler()
