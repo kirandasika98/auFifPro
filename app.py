@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify, g
 from flask import render_template
 from flask import make_response, redirect
 from flask_bcrypt import Bcrypt
-from models import User, Match, init_db, db
+from models import User, Match, db
 from peewee import IntegrityError, DoesNotExist
 from ranking import calculate_ranks
 from datetime import datetime, timedelta
