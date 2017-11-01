@@ -23,7 +23,9 @@ DEFAULT_LONG = -85.4807820
 
 if "HEROKU" in os.environ:
     # Grab client_id, client_secret and access_token from HEROKU
-    pass
+    ACCESS_TOKEN = os.environ["YELP_ACCESS_TOKEN"]
+    CLIENT_ID = os.environ["YELP_CLIENT_ID"]
+    CLIENT_SECRET = os.environ["YELP_CLIENT_SECRET"]
 else:
     # Grab yelp credentials from json file
     credentials = json.loads(file("credentials.json").read())
