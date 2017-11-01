@@ -253,7 +253,7 @@ def wagers():
 
     # Retrieving an instance of the current user
     curr_user = User.get(User.username == request.cookies['username'])
-    users = User.select().order_by('pub_date')
+    users = User.select()
     # Selecting wagers that the user is participating in
     wagers = Wager.select().where((Wager.initiator == curr_user.get_id()) |
                                   (Wager.opponent == curr_user.get_id()))
