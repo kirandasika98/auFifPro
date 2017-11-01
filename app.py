@@ -232,6 +232,10 @@ def wagers():
     if request.method == 'POST':
         # Getting wager initiator
         initiator = User.get(User.username == request.cookies['username'])
+        # Check if wager is with same user
+        if initiator.id == int(request.form['user']):
+            return jsonify({"response": False, "error": "Choose a different player."})
+
         # Creating a new CachedYelpPlace instance to check if we already have it
         try:
             yelp_business = CachedYelpPlace.create(yelp_id=request.form['id'],
@@ -249,7 +253,7 @@ def wagers():
 
     # Retrieving an instance of the current user
     curr_user = User.get(User.username == request.cookies['username'])
-    users = User.select()
+    users = User.select().order_by('pub_date')
     # Selecting wagers that the user is participating in
     wagers = Wager.select().where((Wager.initiator == curr_user.get_id()) |
                                   (Wager.opponent == curr_user.get_id()))
