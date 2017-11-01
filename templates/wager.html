@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}AufifPro - Wager's{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='template.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <p class="lead"><u>Request Wager</u></p> <br/>
+                <form action="" method="post">
+                    <select class="form-control auto" id="requested_user_dropdown">
+                        {% for user in users %}
+                            <option value="{{ user.get_id() }}">{{ user.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <br />
+                    <input type="text" class="form-control auto" placeholder="Search for a place to treat..." autocomplete="off" id="yelpQ"/>
+                    <div class="p-3 mb-2 bg-white text-dark">Search powered by
+                        <a href="https://yelp.com">
+                            <img src="{{ url_for('static', filename='Yelp.png') }}" width="30" height="30"/>
+                        </a>
+                    </div>
+                    <br />
+                    <input type="button" class="form-control auto btn-success" value="Request Wager" onclick="requestNewWager();" />
+                </form>
+            </div>
+            <div class="col">
+                <p class="lead"><u>My Wagers</u></p> <br/>
+                {% if wagers %}
+                    {% for wager in wagers %}
+                        {{ wager.initiator.username }} <b>vs.</b> {{ wager.opponent.username }} @
+                        <b>{{ wager.yelp_id.yelp_data }}</b>
+                        <!-- Add the result link if the wager is not completed -->
+                        {% if wager.match is none %}
+                            <a href="{{ url_for('wager_result', wager_id=wager.id) }}" onclick="setSelectedWagerResult({{ wager.id }});">Add result</a>
+                            <!-- Else display the result of the match -->
+                        {%  else %}
+                            ({{ wager.match.player1_goals }}-{{ wager.match.player2_goals }})
+                        {%  endif %}
+                        <br />
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{%  endblock %}
+{% block javascript %}
+    <script type="text/javascript" src="{{ url_for('static', filename='bootstrap-typeahead.js') }}"></script>
+    <script type="text/javascript">
+        var selectedItem = null;
+        function setSelectedItem(item) {
+            selectedItem = {id: item.value, name: item.text};
+        }
+        $('#yelpQ').typeahead({
+            ajax: {
+                url: '/yelp_autocomplete',
+                method: 'post',
+                triggerLength: 1,
+                displayKey: 'name'
+            },
+            onSelect: setSelectedItem 
+        });
+        function setSelectedWagerResult(wager_id) {
+            window.sessionStorage.setItem("selected_wager", wager_id);
+        }
+    </script>
+{%  endblock %}

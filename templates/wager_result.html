@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %} Wager Result {% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='template.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <label for="player1_goals">{{ player1.username }}: </label><br />
+            <input type="text" autocomplete="off" placeholder="Enter Goals" id="player1_goals" class="form-control col-sm-3"/>
+        </div>
+        <br />
+        <div class="row">
+            <label for="player2_goals">{{ player2.username }}: </label><br/>
+            <input type="text" autocomplete="off" placeholder="Enter Goals" id="player2_goals" class="form-control col-sm-3"/>
+        </div>
+        <br />
+        <div class="row">
+            <input type="button" class="form-control btn-success col-sm-3" onclick="addWagerResult({{ player1.id }}, {{ player2.id }})" value="Add result"/>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        var wager_id = window.sessionStorage.getItem("selected_wager");
+        console.log(wager_id);
+    </script>
+{% endblock %}

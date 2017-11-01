@@ -45,8 +45,7 @@ class YelpFusionHandler():
         search_query["location"] = LOCATION
         url = API_ENDPOINT_V3 + "businesses/search"
         business_data_request = requests.get(url, params=search_query,
-                                        headers=self.headers)
-
+                                             headers=self.headers)
 
         return json.dumps(business_data_request.json(), indent=4)
 
@@ -76,12 +75,12 @@ class YelpFusionHandler():
         search_query["longitude"] = DEFAULT_LONG
         url = API_ENDPOINT_V3 + "autocomplete"
         autocomplete_data_request = requests.get(url, params=search_query,
-                                                headers=self.headers)
+                                                 headers=self.headers)
+
         return autocomplete_data_request.json()["businesses"]
 
 
 if __name__ == "__main__":
     yfh = YelpFusionHandler()
     query = str(raw_input("search term: "))
-    for business in yfh.get_auto_complete_businesses({"text":query}):
-        print yfh.get_business_data_by_id(business["id"])
+    print yfh.get_auto_complete_businesses({"text": query})

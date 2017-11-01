@@ -59,3 +59,36 @@ function newMatch() {
 		}
 	});
 }
+
+function requestNewWager() {
+	var requestedPlayerUsername = $("#requested_user_dropdown").val();
+	
+	var payloadData = {
+		user: requestedPlayerUsername,
+		id: selectedItem.id,
+		name: selectedItem.name
+	};
+
+	$.post($SCRIPT_ROOT + "/wagers", payloadData, function(data, status){
+		if (data.response == true) {
+			window.location.replace($SCRIPT_ROOT + "/wagers");
+		}
+	});
+}
+
+
+function addWagerResult(player1_id, player2_id) {
+	var payloadData = {
+		wager_id: wager_id,
+		player1_id: player1_id,
+		player2_id: player2_id,
+		player1_goals: $("#player1_goals").val(),
+		player2_goals: $("#player2_goals").val()
+	};
+
+	$.post($SCRIPT_ROOT + "/wager_result/" + wager_id, payloadData, function(data, status){
+		if (data.response == true) {
+			window.location.replace($SCRIPT_ROOT + "/wagers");
+		}
+	});
+}

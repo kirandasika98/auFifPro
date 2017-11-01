@@ -5,12 +5,13 @@ from flask import Flask, request, jsonify, g
 from flask import render_template
 from flask import make_response, redirect
 from flask_bcrypt import Bcrypt
-from models import User, Match, db
+from models import User, Match, db, CachedYelpPlace, Wager
 from peewee import IntegrityError, DoesNotExist
 from ranking import calculate_ranks
 from datetime import datetime, timedelta
 from profile_matches import get_my_matches
 from utils import MyMemcache
+from yelp import YelpFusionHandler
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -181,7 +182,7 @@ def new_match():
         except:
             return jsonify({"response": False, "error": "Provide goals for players."})
 
-        if (player1_id == player2_id):
+        if player1_id == player2_id:
             return jsonify({"response": False, "error": "Player 1 cannot be the same as Player2"})
 
         Match.create(player1_id=player1_id, player2_id=player2_id,
@@ -221,6 +222,76 @@ def profile(id=None):
         outcomes = get_my_matches(user)
         return render_template("profile.html", user=user, outcomes=outcomes)
     return redirect("/")
+
+
+@app.route("/wagers", methods=['GET', 'POST'])
+def wagers():
+    if "username" not in request.cookies:
+        return redirect("/")
+
+    if request.method == 'POST':
+        # Getting wager initiator
+        initiator = User.get(User.username == request.cookies['username'])
+        # Creating a new CachedYelpPlace instance to check if we already have it
+        try:
+            yelp_business = CachedYelpPlace.create(yelp_id=request.form['id'],
+                                            yelp_data=request.form['name'])
+        except IntegrityError:
+            # Yelp business already exists in the database
+            yelp_business = CachedYelpPlace.get(CachedYelpPlace.yelp_id == request.form['id'])
+
+        # Creating new Wager
+        wager = Wager.create(initiator_id=initiator.get_id(),
+                             opponent_id=int(request.form['user']),
+                             yelp_id_id=yelp_business.get_id())
+        # Success response for new wager
+        return jsonify({"response": True, "id": wager.get_id()})
+
+    # Retrieving an instance of the current user
+    curr_user = User.get(User.username == request.cookies['username'])
+    users = User.select()
+    # Selecting wagers that the user is participating in
+    wagers = Wager.select().where((Wager.initiator == curr_user.get_id()) |
+                                  (Wager.opponent == curr_user.get_id()))
+    # Default response for GET request
+    return render_template("wager.html", name=request.cookies['username'],
+                           users=users,
+                           wagers=wagers)
+
+
+@app.route("/wager_result/<wager_id>", methods=['GET', 'POST'])
+def wager_result(wager_id=None):
+    """
+    Updates the database with the wager result
+    :return: HttpResponse
+    """
+    if "username" not in request.cookies:
+        return redirect("/")
+
+    if request.method == 'POST':
+        # Add the new match in the database and update the wager
+        # With the new match id
+        wager_match = Match.create(player1_id=request.form['player1_id'],
+                                   player2_id=request.form['player2_id'],
+                                   player1_goals=request.form['player1_goals'],
+                                   player2_goals=request.form['player2_goals'])
+        # Updating wager with the match
+        wager = Wager.get(Wager.id == wager_id)
+        wager.match = wager_match
+        wager.save()
+        return jsonify({"response": True})
+
+    wager = Wager.get(Wager.id == wager_id)
+    return render_template("wager_result.html", name=request.cookies['username'],
+                           player1=wager.initiator, player2=wager.opponent)
+
+
+@app.route("/yelp_autocomplete", methods=['POST'])
+def yelp_autocomplete():
+    query = request.form.get('query')
+    # Use the Yelp api hander to send the information and get back new information
+    yfh = YelpFusionHandler()
+    return jsonify(yfh.get_auto_complete_businesses({"text": query}))
 
 
 if __name__ == "__main__":
