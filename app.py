@@ -283,6 +283,9 @@ def wager_result(wager_id=None):
         wager = Wager.get(Wager.id == wager_id)
         wager.match = wager_match
         wager.save()
+
+        # Update memcache key
+        mc.set("update_ranks", True)
         return jsonify({"response": True})
 
     wager = Wager.get(Wager.id == wager_id)
