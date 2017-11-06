@@ -25,14 +25,14 @@
 
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
+          <li {% if request.path == "/" or request.path == "/dashboard" %} class="nav-item active" {% else %} class="nav-item" {% endif %}>
             {% if name %}
               <a class="nav-link" href="/dashboard">Home</a>
               {% else %}
                 <a class="nav-link" href="/">Home</a>
             {% endif %}
           </li>
-            <li class="nav-item">
+            <li class="nav-item {% if request.path == "/wagers" %}active{% endif %}">
                 {% if name %}
                     <a class="nav-link" href="{{ url_for('wagers') }}">Wagers</a>
                 {% endif %}
