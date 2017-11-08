@@ -1,6 +1,7 @@
 import bmemcached
 import os
 import json
+import time
 from flask import Flask, request, jsonify, g
 from flask import render_template
 from flask import make_response, redirect
@@ -105,7 +106,7 @@ def sign_up():
         hashing password and creating a database entry and
         returning true or returning to signup page
         """
-        
+
         attempted_username = request.form['username']
         attempted_password = request.form['password']
         attempted_verified = request.form['verify_password']
@@ -220,7 +221,8 @@ def profile(id=None):
     if "username" in request.cookies:
         user = User.get(User.id == id)
         outcomes = get_my_matches(user)
-        return render_template("profile.html", user=user, outcomes=outcomes)
+        return render_template("profile.html", user=user, outcomes=outcomes,
+                               name=request.cookies['username'])
     return redirect("/")
 
 
@@ -300,6 +302,24 @@ def yelp_autocomplete():
     yfh = YelpFusionHandler()
     return jsonify(yfh.get_auto_complete_businesses({"text": query}))
 
+
+@app.route("/yelp_detail/<yelp_id>", methods=['GET'])
+def yelp_detail(yelp_id):
+    # Initialize Yelp Fusion Handler Object
+    yfh = YelpFusionHandler()
+
+    # Get Yelp Business data and also cache it in the memcache with expiry
+    # Check memcache for data cache associated with current yelp_id
+    if mc.get(yelp_id) is None:
+        business_data = yfh.get_business_data_by_id(yelp_id=yelp_id)
+        mc.set(yelp_id, business_data, time=(int(time.time()) + TWENTY_MIN))
+    else:
+        # Getting data from cache
+        business_data = mc.get(yelp_id)
+
+    return render_template("wager_detail.html",
+                           yelp_data=yfh.get_business_data_by_id(yelp_id=yelp_id),
+                           name=request.cookies['username'])
 
 if __name__ == "__main__":
     app.run(debug=True)

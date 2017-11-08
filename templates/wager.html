@@ -34,7 +34,11 @@
                 {% if wagers %}
                     {% for wager in wagers %}
                         {{ wager.initiator.username }} <b>vs.</b> {{ wager.opponent.username }} @
-                        <b>{{ wager.yelp_id.yelp_data }}</b>
+                        <b>
+                            <a href="{{ url_for('yelp_detail', yelp_id=wager.yelp_id.yelp_id) }}">
+                                {{ wager.yelp_id.yelp_data }}
+                            </a>
+                        </b>
                         <!-- Add the result link if the wager is not completed -->
                         {% if wager.match is none %}
                             <a href="{{ url_for('wager_result', wager_id=wager.id) }}" onclick="setSelectedWagerResult({{ wager.id }});">Add result</a>

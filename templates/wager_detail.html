@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}AufifPro - {{ yelp_data['name'] }}{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <p class="lead">{{ yelp_data['name'] }} <b>({{ yelp_data['price'] }})</b></p>
+        <img src="{{ yelp_data['photos'][0] }}" width="200" height="200" />
+    </div>
+{% endblock %}
