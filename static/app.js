@@ -73,6 +73,9 @@ function requestNewWager() {
 		if (data.response == true) {
 			window.location.replace($SCRIPT_ROOT + "/wagers");
 		}
+        else {
+            document.getElementById("error").innerHTML = "<font color='red'>" + data.error + "</font>";
+        }
 	});
 }
 

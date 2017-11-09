@@ -318,7 +318,7 @@ def yelp_detail(yelp_id):
         business_data = mc.get(yelp_id)
 
     return render_template("wager_detail.html",
-                           yelp_data=yfh.get_business_data_by_id(yelp_id=yelp_id),
+                           yelp_data=business_data,
                            name=request.cookies['username'])
 
 if __name__ == "__main__":
