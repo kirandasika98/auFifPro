@@ -312,6 +312,7 @@ def yelp_detail(yelp_id):
     # Check memcache for data cache associated with current yelp_id
     if mc.get(yelp_id) is None:
         business_data = yfh.get_business_data_by_id(yelp_id=yelp_id)
+        # Cache set for 20 min
         mc.set(yelp_id, business_data, time=(int(time.time()) + TWENTY_MIN))
     else:
         # Getting data from cache
