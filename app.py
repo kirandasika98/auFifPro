@@ -1,7 +1,11 @@
-import bmemcached
+"""
+All app views in this file.
+"""
 import os
 import json
 import time
+from datetime import datetime, timedelta
+import bmemcached
 from flask import Flask, request, jsonify, g
 from flask import render_template
 from flask import make_response, redirect
@@ -9,7 +13,6 @@ from flask_bcrypt import Bcrypt
 from models import User, Match, db, CachedYelpPlace, Wager
 from peewee import IntegrityError, DoesNotExist
 from ranking import calculate_ranks
-from datetime import datetime, timedelta
 from profile_matches import get_my_matches
 from utils import MyMemcache
 from yelp import YelpFusionHandler
@@ -25,7 +28,6 @@ if "HEROKU" not in os.environ:
     mc = bmemcached.Client(memcache_credentials["host"],
                            memcache_credentials["username"],
                            memcache_credentials["password"])
-    pass
 else:
     # Get data from Heroku
     mc = bmemcached.Client(os.environ["MEMCACHE_HOST"],
@@ -257,12 +259,12 @@ def wagers():
     curr_user = User.get(User.username == request.cookies['username'])
     users = User.select()
     # Selecting wagers that the user is participating in
-    wagers = Wager.select().where((Wager.initiator == curr_user.get_id()) |
-                                  (Wager.opponent == curr_user.get_id()))
+    user_wagers = Wager.select().where((Wager.initiator == curr_user.get_id()) |
+                                       (Wager.opponent == curr_user.get_id()))
     # Default response for GET request
     return render_template("wager.html", name=request.cookies['username'],
                            users=users,
-                           wagers=wagers)
+                           wagers=user_wagers)
 
 
 @app.route("/wager_result/<wager_id>", methods=['GET', 'POST'])
