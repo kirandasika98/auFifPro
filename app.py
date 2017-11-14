@@ -242,7 +242,7 @@ def forgot_password():
     return render_template('forgot_password.html')
 
 
-@app.route("/profile/<id>", methods=['GET'])
+@app.route("/profile/<pid>", methods=['GET'])
 def profile(pid=None):
     """
     Displays user profile page.
