@@ -44,24 +44,36 @@ TWENTY_MIN = 600
 
 @app.before_request
 def before_request():
+    """
+    runs before any flask request
+    """
     g.db = db
     g.db.connect()
 
 
 @app.teardown_request
 def teardown_request(response):
+    """
+    closes database connection for current request
+    """
     g.db.close()
     return response
 
 
 @app.after_request
 def after_request(response):
+    """
+    closes database connection for current request
+    """
     g.db.close()
     return response
 
 
 @app.route("/", methods=['GET', 'POST'])
 def index_route():
+    """
+    index route for the app
+    """
     if request.method == 'POST':
         if valid_login(request.form['username'], request.form['password']):
             # set cookie
@@ -70,12 +82,12 @@ def index_route():
             response.set_cookie("username", request.form['username'],
                                 expires=sixty_days)
             return response
-        else:
-            response = {
-                'response': False,
-                'error': "invalid username/password"
-            }
-            return jsonify(response)
+
+        response = {
+            'response': False,
+            'error': "invalid username/password"
+        }
+        return jsonify(response)
 
     if "username" in request.cookies:
         return redirect("/dashboard")
@@ -84,6 +96,9 @@ def index_route():
 
 
 def valid_login(attempted_username, attempted_password):
+    """
+    Helper function to check if a login is valid.
+    """
     try:
         user = User.get(User.username == attempted_username)
     except DoesNotExist:
@@ -93,6 +108,9 @@ def valid_login(attempted_username, attempted_password):
 
 @app.route("/logout")
 def logout():
+    """
+    this view does all nescessary stuff for user logout.
+    """
     if "username" in request.cookies:
         response = make_response(redirect("/"))
         response.set_cookie("username", "", expires=0)
@@ -102,13 +120,12 @@ def logout():
 
 @app.route("/signup", methods=['GET', 'POST'])
 def sign_up():
+    """
+    Getting username and password
+    hashing password and creating a database entry and
+    returning true or returning to signup page
+    """
     if request.method == 'POST':
-        """
-        Getting username and password
-        hashing password and creating a database entry and
-        returning true or returning to signup page
-        """
-
         attempted_username = request.form['username']
         attempted_password = request.form['password']
         attempted_verified = request.form['verify_password']
@@ -136,6 +153,9 @@ def sign_up():
 
 @app.route("/dashboard")
 def dashboard():
+    """
+    dashboard view
+    """
     if "username" not in request.cookies:
         return redirect("/")
     user = User.get(username=request.cookies['username'])
@@ -174,6 +194,9 @@ def dashboard():
 
 @app.route("/new_match", methods=['GET', 'POST'])
 def new_match():
+    """
+    async request from client to create a new match
+    """
     if request.method == 'POST':
         player1_id = request.form['player1_id']
         player2_id = request.form['player2_id']
@@ -199,6 +222,9 @@ def new_match():
 
 @app.route("/forgot_password", methods=['GET', 'POST'])
 def forgot_password():
+    """
+    allows user to reset password
+    """
     if request.method == 'POST':
         username = request.form["userName"]
         password = request.form["userPassword"]
@@ -212,16 +238,19 @@ def forgot_password():
             user.password = bcrypt.generate_password_hash(password)
             user.save()
             return redirect("/")
-        else:
-            return render_template("forgot_password.html", password_info="Password's dont match.")
+
+        return render_template("forgot_password.html", password_info="Password's dont match.")
 
     return render_template('forgot_password.html')
 
 
 @app.route("/profile/<id>", methods=['GET'])
-def profile(id=None):
+def profile(pid=None):
+    """
+    Displays user profile page.
+    """
     if "username" in request.cookies:
-        user = User.get(User.id == id)
+        user = User.get(User.id == pid)
         outcomes = get_my_matches(user)
         return render_template("profile.html", user=user, outcomes=outcomes,
                                name=request.cookies['username'])
@@ -230,6 +259,10 @@ def profile(id=None):
 
 @app.route("/wagers", methods=['GET', 'POST'])
 def wagers():
+    """
+    Either displayes new wager or gives an option to
+    create a new wager.
+    """
     if "username" not in request.cookies:
         return redirect("/")
 
@@ -243,7 +276,7 @@ def wagers():
         # Creating a new CachedYelpPlace instance to check if we already have it
         try:
             yelp_business = CachedYelpPlace.create(yelp_id=request.form['id'],
-                                            yelp_data=request.form['name'])
+                                                   yelp_data=request.form['name'])
         except IntegrityError:
             # Yelp business already exists in the database
             yelp_business = CachedYelpPlace.get(CachedYelpPlace.yelp_id == request.form['id'])
@@ -299,6 +332,9 @@ def wager_result(wager_id=None):
 
 @app.route("/yelp_autocomplete", methods=['POST'])
 def yelp_autocomplete():
+    """
+    Queries the yelp autocomplete api for results
+    """
     query = request.form.get('query')
     # Use the Yelp api hander to send the information and get back new information
     yfh = YelpFusionHandler()
@@ -307,6 +343,9 @@ def yelp_autocomplete():
 
 @app.route("/yelp_detail/<yelp_id>", methods=['GET'])
 def yelp_detail(yelp_id):
+    """
+    Get's more information on a yelp business and caches in memcache.
+    """
     # Initialize Yelp Fusion Handler Object
     yfh = YelpFusionHandler()
 
