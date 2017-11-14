@@ -1,15 +1,17 @@
-from models import *
-from peewee import *
+"""
+Get wins and draws for each player
+Calculate goal difference while calculating wins
+Sort users based on wins and GD
+"""
 from collections import OrderedDict
+from models import Match
 
-
-# Get wins and draws for each player
-# Calculate goal difference while calculating wins
-# Sort users based on wins and GD
-
-class RankUser():
-    def __init__(self, id, username):
-        self.id = id
+class RankUser(object):
+    """
+    Placeholder class to represent a user.
+    """
+    def __init__(self, uid, username):
+        self.id = uid
         self.username = username
         self.wins = 0
         self.draws = 0
@@ -18,27 +20,42 @@ class RankUser():
         self.matches_played = 0
 
     def add_win(self):
+        """
+        Add win for user
+        """
         self.wins += 1
         self.points += 3
 
     def add_draw(self):
+        """
+        Add draw for user
+        """
         self.draws += 1
         self.points += 1
 
-    def calculate_GD(self, GF, GA):
-        self.GD += (GF - GA)
+    def calculate_gd(self, goals_for, goals_against):
+        """
+        Calculate GD for user
+        """
+        self.GD += (goals_for - goals_against)
 
     def add_match(self):
+        """
+        Increment match count for user
+        """
         self.matches_played += 1
 
     def __str__(self):
-        return "id:{}, username:{}, wins:{}, draws:{}, GD:{}, points:{}, mp:{}".format(self.id,
-                                                                                       self.username, self.wins,
-                                                                                       self.draws, self.GD, self.points,
-                                                                                       self.matches_played)
+        return """id:{}, username:{}, wins:{}, draws:{}, GD:{}, points:{},
+                mp:{}""".format(self.id, self.username, self.wins,
+                                self.draws, self.GD, self.points,
+                                self.matches_played)
 
 
 def calculate_ranks():
+    """
+    calculates the ranks for user based on matches played, gd and points
+    """
     user_map = dict()
     for match in Match.select():
         # search player 1
@@ -64,8 +81,8 @@ def calculate_ranks():
             player2.add_win()
 
         # calculate GD's for both players
-        player1.calculate_GD(match.player1_goals, match.player2_goals)
-        player2.calculate_GD(match.player2_goals, match.player1_goals)
+        player1.calculate_gd(match.player1_goals, match.player2_goals)
+        player2.calculate_gd(match.player2_goals, match.player1_goals)
 
         # adding a match for both players
         player1.add_match()
