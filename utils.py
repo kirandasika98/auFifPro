@@ -10,14 +10,20 @@ import requests
 TWO_DAYS = 172800
 API_BASE_URL = "https://api.mailgun.net/v3/{}/messages" # {} for mailgun domain
 
-class MyMemcache():
+class MyMemcache(object):
+    """
+    Memcache wrapper
+    """
     def __init__(self, conn=None):
         self.conn = conn
 
     def set(self, key, value):
+        """
+        Set a new memcache key and value
+        """
         self.conn.set(key, self.serialize_protocol(value),
-                    time=(int(time.time()) + TWO_DAYS),
-                    compress_level=0)
+                      time=(int(time.time()) + TWO_DAYS),
+                      compress_level=0)
 
     def get(self, key):
         """
@@ -33,6 +39,9 @@ class MyMemcache():
         return None
 
     def delete(self, key):
+        """
+        Deletes the specifies memcache key
+        """
         return self.conn.delete(key)
 
     def serialize_protocol(self, value):
@@ -55,20 +64,28 @@ class MyMemcache():
         "buff_size": "SIZE_OF_OBJECT"
         """
         return json.dumps(dict(expiry_timestamp=(int(time.time()) + TWO_DAYS),
-                                data=value, buff_size=sys.getsizeof(value)))
+                               data=value, buff_size=sys.getsizeof(value)))
 
 
 class MailGunHandler(object):
-
+    """
+    Mailgun handler
+    """
     def __init__(self, api_key, mailgun_domain):
         self.api_key = api_key
         self.mailgun_domain = mailgun_domain
 
     def service_url(self):
+        """
+        returns service api url
+        """
         return API_BASE_URL.format(self.mailgun_domain)
 
     def send_email(self, to_email, subject, body):
-        r = requests.post(
+        """
+        send a request to the mailgun api for email to be sent.
+        """
+        res = requests.post(
             self.service_url(),
             auth=("api", self.api_key),
             data={
@@ -78,4 +95,4 @@ class MailGunHandler(object):
                 "text": body
             }
         )
-        return r
+        return res

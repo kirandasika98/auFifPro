@@ -14,29 +14,27 @@ from models import User, Match, db, CachedYelpPlace, Wager
 from peewee import IntegrityError, DoesNotExist
 from ranking import calculate_ranks
 from profile_matches import get_my_matches
-from utils import MyMemcache
 from yelp import YelpFusionHandler
 
 app = Flask(__name__)
-bcrypt = Bcrypt(app)
+BCRYPT = Bcrypt(app)
 
 # Memcache Setup
 if "HEROKU" not in os.environ:
     # Get from credentials file
-    memcache_credentials = json.loads(file("credentials.json")
+    MEMCACHE_CREDENTIALS = json.loads(file("credentials.json")
                                       .read())["memcache"]
-    mc = bmemcached.Client(memcache_credentials["host"],
-                           memcache_credentials["username"],
-                           memcache_credentials["password"])
+    MC = bmemcached.Client(MEMCACHE_CREDENTIALS["host"],
+                           MEMCACHE_CREDENTIALS["username"],
+                           MEMCACHE_CREDENTIALS["password"])
 else:
     # Get data from Heroku
-    mc = bmemcached.Client(os.environ["MEMCACHE_HOST"],
+    MC = bmemcached.Client(os.environ["MEMCACHE_HOST"],
                            os.environ["MEMCACHE_USERNAME"],
                            os.environ["MEMCACHE_PASSWORD"])
-memcache = MyMemcache(mc)
 
 # Cookie expiry
-sixty_days = datetime.now() + timedelta(days=60)
+SIXTY_DAYS = datetime.now() + timedelta(days=60)
 
 # Memcache key expiry
 TWENTY_MIN = 600
@@ -80,7 +78,7 @@ def index_route():
             response = make_response(jsonify({"response": True}))
             # setting a cookie hash
             response.set_cookie("username", request.form['username'],
-                                expires=sixty_days)
+                                expires=SIXTY_DAYS)
             return response
 
         response = {
@@ -103,7 +101,7 @@ def valid_login(attempted_username, attempted_password):
         user = User.get(User.username == attempted_username)
     except DoesNotExist:
         return False
-    return bcrypt.check_password_hash(user.password, attempted_password)
+    return BCRYPT.check_password_hash(user.password, attempted_password)
 
 
 @app.route("/logout")
@@ -136,7 +134,7 @@ def sign_up():
         if len(attempted_username) < 1 or len(attempted_password) < 1:
             return jsonify({"response": False, "error": "please provide a username/password"})
 
-        pass_hash = bcrypt.generate_password_hash(attempted_password)
+        pass_hash = BCRYPT.generate_password_hash(attempted_password)
 
         try:
             User.create(username=attempted_username, password=pass_hash)
@@ -145,7 +143,7 @@ def sign_up():
 
         # set cookie and return
         response = make_response(jsonify({"response": True}))
-        response.set_cookie("username", attempted_username, expires=sixty_days)
+        response.set_cookie("username", attempted_username, expires=SIXTY_DAYS)
         return response
     else:
         return render_template('signup.html')
@@ -169,9 +167,9 @@ def dashboard():
     # Defining a rankings variable to hold the OrderedDict of ranks
     rankings = None
     # Bool representing whether we have to update the ranks
-    update_ranks = mc.get("update_ranks")
+    update_ranks = MC.get("update_ranks")
     # An Object to represent the ranks to be displayed
-    ranks = mc.get("ranks")
+    ranks = MC.get("ranks")
 
     if update_ranks is not None and update_ranks is False:
         # Return ranks as they are the most recent ones
@@ -183,8 +181,8 @@ def dashboard():
         # Calculating new ranks
         rankings = calculate_ranks()
         # Updating memcache with the recent ranks and update_ranks to False
-        mc.set("ranks", rankings)
-        mc.set("update_ranks", False)
+        MC.set("ranks", rankings)
+        MC.set("update_ranks", False)
 
     return render_template("dashboard.html", name=request.cookies['username'],
                            is_moderater=user.is_moderater,
@@ -205,7 +203,7 @@ def new_match():
         try:
             player1_goals = int(request.form['player1_goals'])
             player2_goals = int(request.form['player2_goals'])
-        except:
+        except ValueError:
             return jsonify({"response": False, "error": "Provide goals for players."})
 
         if player1_id == player2_id:
@@ -215,7 +213,7 @@ def new_match():
                      player1_goals=player1_goals, player2_goals=player2_goals)
 
         # ranks in memcache now are obselete so update the 'update_ranks' key
-        mc.set("update_ranks", True)
+        MC.set("update_ranks", True)
 
         return jsonify({"response": True})
 
@@ -235,7 +233,7 @@ def forgot_password():
             return render_template("forgot_password.html", password_info="User does not exist")
 
         if password == verify_password:
-            user.password = bcrypt.generate_password_hash(password)
+            user.password = BCRYPT.generate_password_hash(password)
             user.save()
             return redirect("/")
 
@@ -322,7 +320,7 @@ def wager_result(wager_id=None):
         wager.save()
 
         # Update memcache key
-        mc.set("update_ranks", True)
+        MC.set("update_ranks", True)
         return jsonify({"response": True})
 
     wager = Wager.get(Wager.id == wager_id)
@@ -351,13 +349,13 @@ def yelp_detail(yelp_id):
 
     # Get Yelp Business data and also cache it in the memcache with expiry
     # Check memcache for data cache associated with current yelp_id
-    if mc.get(yelp_id) is None:
+    if MC.get(yelp_id) is None:
         business_data = yfh.get_business_data_by_id(yelp_id=yelp_id)
         # Cache set for 20 min
-        mc.set(yelp_id, business_data, time=(int(time.time()) + TWENTY_MIN))
+        MC.set(yelp_id, business_data, time=(int(time.time()) + TWENTY_MIN))
     else:
         # Getting data from cache
-        business_data = mc.get(yelp_id)
+        business_data = MC.get(yelp_id)
 
     return render_template("wager_detail.html",
                            yelp_data=business_data,

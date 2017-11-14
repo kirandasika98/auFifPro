@@ -11,9 +11,9 @@ Format for JSON
     }
 }
 """
-import requests
 import os
 import json
+import requests
 
 API_AUTH_ENDPOINT = "https://api.yelp.com/oauth2/token"
 API_ENDPOINT_V3 = "https://api.yelp.com/v3/"
@@ -28,18 +28,24 @@ if "HEROKU" in os.environ:
     CLIENT_SECRET = os.environ["YELP_CLIENT_SECRET"]
 else:
     # Grab yelp credentials from json file
-    credentials = json.loads(file("credentials.json").read())
-    ACCESS_TOKEN = credentials["yelp"]["access_token"]
-    CLIENT_ID = credentials["yelp"]["client_id"]
-    CLIENT_SECRET = credentials["yelp"]["client_secret"]
+    CREDENTIALS = json.loads(file("credentials.json").read())
+    ACCESS_TOKEN = CREDENTIALS["yelp"]["access_token"]
+    CLIENT_ID = CREDENTIALS["yelp"]["client_id"]
+    CLIENT_SECRET = CREDENTIALS["yelp"]["client_secret"]
 
 
-class YelpFusionHandler():
+class YelpFusionHandler(object):
+    """
+    YelpFusionApi Handler
+    """
     def __init__(self, user=None):
         self.user = user
         self.headers = dict(Authorization="Bearer {}".format(ACCESS_TOKEN))
 
     def get_businesses(self, search_query=None):
+        """
+        Get's a business
+        """
         if search_query is None:
             # creating a new params dict if one if not provided
             search_query = dict(location=LOCATION)
@@ -83,6 +89,6 @@ class YelpFusionHandler():
 
 
 if __name__ == "__main__":
-    yfh = YelpFusionHandler()
-    query = str(raw_input("search term: "))
-    print yfh.get_auto_complete_businesses({"text": query})
+    YFH = YelpFusionHandler()
+    QUERY = str(raw_input("search term: "))
+    print YFH.get_auto_complete_businesses({"text": QUERY})
