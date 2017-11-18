@@ -361,5 +361,19 @@ def yelp_detail(yelp_id):
                            yelp_data=business_data,
                            name=request.cookies['username'])
 
+@app.route("/worker", methods=['POST','GET'])
+def worker():
+    """
+    Worker view for all background tasks that have to be completed
+    """
+    if request.method == 'POST':
+        # Get process type
+        # Schedule process on redis queue
+        # Return confirmation
+        pass
+
+    # Eventually should return a list of all processes scheduled.
+    return jsonify({"response": True})
+
 if __name__ == "__main__":
     app.run(debug=True)
