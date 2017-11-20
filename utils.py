@@ -96,3 +96,4 @@ class MailGunHandler(object):
             }
         )
         return res
+

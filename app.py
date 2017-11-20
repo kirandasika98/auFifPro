@@ -248,7 +248,10 @@ def profile(pid=None):
     Displays user profile page.
     """
     if "username" in request.cookies:
-        user = User.get(User.id == pid)
+        try:
+            user = User.get(User.id == pid)
+        except DoesNotExist:
+            return jsonify({"response": False, "error": "invalid profile id"})
         outcomes = get_my_matches(user)
         return render_template("profile.html", user=user, outcomes=outcomes,
                                name=request.cookies['username'])
@@ -374,6 +377,7 @@ def worker():
 
     # Eventually should return a list of all processes scheduled.
     return jsonify({"response": True})
+
 
 if __name__ == "__main__":
     app.run(debug=True)
