@@ -173,11 +173,11 @@ def dashboard():
 
     if update_ranks is not None and update_ranks is False:
         # Return ranks as they are the most recent ones
-        print "Getting ranks from memcache..."
+        print("Getting ranks from memcache...")
         rankings = ranks
 
     elif update_ranks is None or update_ranks is True:
-        print "Calculating new ranks"
+        print("Calculating new ranks")
         # Calculating new ranks
         rankings = calculate_ranks()
         # Updating memcache with the recent ranks and update_ranks to False
