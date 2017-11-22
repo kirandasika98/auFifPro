@@ -50,6 +50,11 @@ class RankUser(object):
                 mp:{}""".format(self.id, self.username, self.wins,
                                 self.draws, self.GD, self.points,
                                 self.matches_played)
+    def __repr__(self):
+        return """id:{}, username:{}, wins:{}, draws:{}, GD:{}, points:{},
+                mp:{}""".format(self.id, self.username, self.wins,
+                                self.draws, self.GD, self.points,
+                                self.matches_played)
 
 
 def calculate_ranks():
